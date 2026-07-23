@@ -2865,6 +2865,8 @@ struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node)
  *
  * args->exit_signal is expected to be checked for sanity by the caller.
  */
+atomic_t m2_fork_count = ATOMIC_INIT(0);
+
 pid_t kernel_clone(struct kernel_clone_args *args)
 {
 	u64 clone_flags = args->flags;
@@ -2911,6 +2913,7 @@ pid_t kernel_clone(struct kernel_clone_args *args)
 
 	if (IS_ERR(p))
 		return PTR_ERR(p);
+	atomic_inc(&m2_fork_count);
 
 	/*
 	 * Do this prior waking up the new thread - the thread pointer
@@ -3552,3 +3555,16 @@ int sysctl_max_threads(struct ctl_table *table, int write,
 
 	return 0;
 }
+
+static int m2_fork_count_show(struct seq_file *m, void *v)
+{
+	seq_printf(m, "%d\n", atomic_read(&m2_fork_count));
+	return 0;
+}
+
+static int __init m2_fork_count_init(void)
+{
+	proc_create_single("fork_count", 0444, NULL, m2_fork_count_show);
+	return 0;
+}
+late_initcall(m2_fork_count_init);

@@ -1065,6 +1065,7 @@ void start_kernel(void)
 	kcsan_init();
 
 	/* Do the rest non-__init'ed, we're now alive */
+	pr_info("Hello from my kernel!\n");
 	arch_call_rest_init();
 
 	/*

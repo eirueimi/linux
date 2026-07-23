@@ -1815,6 +1815,7 @@ static int bprm_execve(struct linux_binprm *bprm,
 	struct file *file;
 	int retval;
 
+	pr_info("m20exec: exec of %s\n", bprm->filename);
 	retval = prepare_bprm_creds(bprm);
 	if (retval)
 		return retval;
